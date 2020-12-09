@@ -1,5 +1,6 @@
-# Base
-***Base库,web基础技术或者api的快速入门教程***
+# [WEB Base](https://github.com/renzhaoz/Base) &middot; [![GitHub license]([GitHub license](https://img.shields.io/badge/license-MIT-blue.svg))]
+
+个人WEB基础技术快速入门笔记
 
 - DOM
 
