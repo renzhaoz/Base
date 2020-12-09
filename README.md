@@ -1,6 +1,5 @@
 # [WEB Base](https://github.com/renzhaoz/Base)
 
-- - -
 个人WEB基础技术快速入门笔记
 
 - DOM
