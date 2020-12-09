@@ -18,7 +18,7 @@
 
 - 只能在https或者loacalhost下使用
 
-## 三.引入Service Worker
+## 三.使用Service Worker
 
 1. 注册
 
@@ -35,14 +35,14 @@
 
     scope规定了需要响应sw的域名范围，不设置即控制所有的页面。
 
-2. 安装
+2. 安装完成的生命周期
   sw执行register方法后sw就会自己安装运行，可以在sw.js文件中监听其是否安装成功。
 
         self.addEventListener('install', event => {
           event.waitUntil(() => console.info('安装完成的回调'))
         })
 
-3. 激活
+3. 激活完成的生命周期
   sw先下载后安装再执行都是自动的，和install类似，在sw.js中可以获取其激活的生命周期。
 
         self.addEventListener('activate', event => {
@@ -51,11 +51,13 @@
 
 4. 更新
 
-    在默认情况下Service Worker必定每24小时被下载一次，如果下载的文件是最新文件，那么就会被重新注册和安装，单不会被激活，当不再有页面使用旧的Service Worker的时候才会被激活。如果这是首次启用service worker，页面会首先尝试安装，安装成功后它会被激活。如果现有service worker已启用，新版本会在后台安装，但不会被激活，这个时序称为worker in waiting。直到所有已加载的页面不再使用旧的service worker才会激活新的service worker。只要页面不再依赖旧的service worker，新的service worker会被激活（成为active worker）。你可以监听InstallEvent，事件触发时的标准行为是准备service worker用于使用，例如使用内建的storage API来创建缓存，并且放置应用离线时所需资源。还有一个activate事件，触发时可以清理旧缓存和旧的service worker关联的东西。
+    - 在默认情况下Service Worker必定每24小时被下载一次，如果下载的文件是最新文件，那么就会被重新注册和安装，单不会被激活，当不再有页面使用旧的Service Worker时新的sw被激活，旧的sw被卸载，所以有可能出现两个sw。如果这是首次启用service worker，页面会首先尝试安装，安装成功后激活。
+    - 浏览器调试工具选择Update on reload
+    - 重新调用register方法
 
-## 四.通信
+## 四.功能简介-通信
 
--  通信 页面 -> ServiceWorker
+-  通信 页面发送消息到ServiceWorker
 
     从页面给已经注册激活的serviceWorker传递消息，要确定当前serviceWorker已经激活安装完成（可以判断navigator.serviceWorker.controller对象是否被构建）。具体如下代码所示：
     
@@ -69,7 +71,7 @@
             console.log(event.data); // this message is from page
         });
       
--  通信 ServiceWorker -> 页面
+-  通信 ServiceWorker发送消息到页面
 
     1. 从serviceWorker到页面的信息传递最简单的方式是通过监听页面发送到serverWorker的消息然后获取windowClients，然后在windowClients上调用window的postMessage发送消息到页面，但是局限性也很大，必须要接收到页面发送到serviceWorker的消息后才能发送消息。例：
 
@@ -87,14 +89,14 @@
     2. 直接通过client对象的postMessage方法发送消息。在sw.js文件中是可以通过serverWorker本身访问到所有的受其控制或者说注册了该serviceWoker的页面的clients对象(即windows对象)，然后直接发送消息。例：
 
             // sw.js 发送 接收如上1类似
-            this.clients.matchAll().then(client => {
+            clients.matchAll().then(client => {
                 client[0].postMessage('this message is from sw.js, to page');
             })
 
       ***以上就是使用serviceWorker的通信部分，当然目前看来所有的通信过程都与postMessage方法类似。那么纵向对比也许浏览器的广播系统也可能是一个更好的方式去实现通信，比如可以在多个serviceWorker之间实现通信和消息推送。有兴趣的话可以看下MessageChannel或者BroadcastChannel的API。***
 
 
-## 五.资源缓存
+## 五.功能简介-资源缓存
 这个功能可以说是浏览器实现或者说兼容该api的重要原因即静态资源缓存。一般情况下打开一个网页浏览器会自动download所有的资源文件包括但不限于js/css/img/html等。受限于网络状态和网络能力能即使本地客户端很好有时也会出现很差的用户体验。serviceWorker可以实现即使在offline的情况下也能正常展示当前页面。sw安装完成之后可以缓存指定静态资源，当页面再次刷新或者重新打开页面sw未被重新安装或者删除时，页面首先会在其cacheSotre中读取其静态资源减少资源请求。
 
 - 缓存指定资源
@@ -157,3 +159,55 @@
                 })]
           }))
         });
+
+## 完整DEMO
+
+        // service_worker.js (在index.html中引入)
+        navigator.serviceWorker.register('sw.js').then(() => {
+          console.info('注册成功');
+        }).catch((err) => {
+          console.error('注册失败');
+        })
+
+        self.addEventListener('install', event => {
+          event.waitUntil(() => console.info('安装完成的回调'))
+        })
+
+        self.addEventListener('activate', event => {
+          event.waitUntil(() => console.info('激活完成的回调'))
+        })
+
+
+        // sw.js
+        // 接收到消息后给所有web页面发送信息
+        this.addEventListener('message', function (event) {
+          clients.matchAll().then(clientLists => {
+            clientLists.forEach(client => {
+              client[0].postMessage('this message is from sw.js to page!!');
+            })
+          })
+        });
+
+
+        // main.js(在index.html引入)，发送消息到sw
+        navigator.serviceWorker.controller.postMessage('This massage is come form web page!')
+        // 接收sw的消息
+        navigator.serviceWorker.addEventListener('message', function (e) {
+          console.log(e.data); // this message is from sw.js, to page
+        })
+
+## API注意事项
+
+- event.waitUntil(fun()) 生命周期中的方法。字面意思，让程序继续运行直到传入的fun执行完毕再卸载或者重装sw。
+
+- self.clients.claim() 假如sw的scope值为/s/,sw在/s/a/域名下注册的前提下，用户先打开/s/b/页面，再打开/s/a/。那么sw默认只会控制/s/a,要控制/s/b那么就需要执行该方法。
+
+- self.skipWaiting() 在install生命周期中调用，则新sw不用等待立即激活。
+
+- self.importScripts('./indexDB.js') 引入外部js，路径是服务器路径
+
+- self.clients 存储被控制的页面,只存不删，除非sw被卸载或者重装。
+
+- clients.matchAll({includeUncontrolled: true,type: 'window'})，从clients中获取目前还在打开的clientwindow
+
+- client.postMessage() 只能传递能json化的信息。负责会报错(例对象中的方法).
