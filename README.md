@@ -1,5 +1,6 @@
-# [WEB Base](https://github.com/renzhaoz/Base) &middot; [![GitHub license]([GitHub license](https://img.shields.io/badge/license-MIT-blue.svg))]
+# [WEB Base](https://github.com/renzhaoz/Base)
 
+- - -
 个人WEB基础技术快速入门笔记
 
 - DOM
@@ -9,6 +10,9 @@
   - [IndexedDB快速起步](https://github.com/renzhaoz/Base/blob/master/DOM/IndexedDB.md)
 
 - JavaScript
+
   - [JavaScript注释标准快速起步](https://github.com/renzhaoz/Base/blob/master/ES/JSDoc.md)
+
   - [ES6新集合类型Set,Map及拓展](https://github.com/renzhaoz/Base/blob/master/ES/Map&Set&WeakMap&WeakSet.md)
+
 - BOM
