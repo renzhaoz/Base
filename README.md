@@ -10,8 +10,8 @@
 
 - JavaScript
 
-  - [JavaScript注释标准快速起步](https://github.com/renzhaoz/Base/blob/master/ES/JSDoc.md)
+  - [JavaScript注释标准快速起步](https://github.com/renzhaoz/Base/blob/master/ESMAScript/JSDoc.md)
 
-  - [ES6新集合类型Set,Map及拓展](https://github.com/renzhaoz/Base/blob/master/ES/Map&Set&WeakMap&WeakSet.md)
+  - [ES6新集合类型Set,Map及拓展](https://github.com/renzhaoz/Base/blob/master/ESMAScript/Map&Set&WeakMap&WeakSet.md)
 
 - BOM
