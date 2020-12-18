@@ -25,7 +25,7 @@
 
 ---
 
-- [Git常用指令集合]](https://github.com/renzhaoz/Base/blob/master/Tools/GitCmd.md)
+- [Git常用指令集合](https://github.com/renzhaoz/Base/blob/master/Tools/GitCmd.md)
 
 
 - Webpack
