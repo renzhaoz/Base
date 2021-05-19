@@ -142,7 +142,7 @@
 
         const transaction = db.transaction(['gril'], 'readonly');
         const dataStore = transaction.objectStore('gril');
-        cosnt index = store.index('name');
+        cosnt index = dataStore.index('name');
         index.get('闫妮').onsuccess = function (e) {
           var result = e.target.result;
           if (result) {
